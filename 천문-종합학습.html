@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>천문 종합 학습 · 별과 우주</title>
+<style>
+  /* ===== 다크(기본) = 밤하늘 / 라이트 토글 가능 ===== */
+  :root{
+    --bg:#0a0e1a; --bg2:#0e1424;
+    --panel:#141b30; --panel2:#1a2238;
+    --ink:#eef2fb; --ink-soft:#a6b0c8; --ink-dim:#6f7a96;
+    --line:#26304c;
+    --accent:#6ea8ff;      /* 청색별 */
+    --accent-bg:rgba(110,168,255,.12);
+    --warn:#ff9d5c;        /* 함정 - 적색거성 톤 */
+    --warn-bg:rgba(255,157,92,.12);
+    --gold:#ffd66b;        /* 강조/태양 */
+    --gold-bg:rgba(255,214,107,.12);
+    --green:#7ee0a8;
+    --green-bg:rgba(126,224,168,.1);
+    --mono:'SFMono-Regular',ui-monospace,'JetBrains Mono',Menlo,Consolas,monospace;
+    /* 분광형 스펙트럼 색 */
+    --O:#9bb0ff; --B:#aabfff; --A:#cad8ff; --F:#f8f7ff; --G:#fff4cc; --K:#ffd2a1; --M:#ff9d7a;
+  }
+  html[data-theme="light"]{
+    --bg:#f4f6fb; --bg2:#eef1f8;
+    --panel:#ffffff; --panel2:#f7f9fd;
+    --ink:#16203a; --ink-soft:#48566f; --ink-dim:#8893a8;
+    --line:#dfe5f0;
+    --accent:#2f6bd6; --accent-bg:rgba(47,107,214,.08);
+    --warn:#c4641f; --warn-bg:rgba(196,100,31,.08);
+    --gold:#b88718; --gold-bg:rgba(184,135,24,.1);
+    --green:#2f8c5c; --green-bg:rgba(47,140,92,.08);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font-family:'Pretendard',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Segoe UI',Roboto,sans-serif;
+    line-height:1.65;font-size:16px;-webkit-font-smoothing:antialiased;transition:background .4s,color .4s;
+  }
+  ::selection{background:var(--gold-bg)}
+
+  /* starfield */
+  .stars{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+  html[data-theme="light"] .stars{opacity:.35}
+  .stars i{position:absolute;background:#fff;border-radius:50%;opacity:.7;animation:tw 4s ease-in-out infinite}
+  html[data-theme="light"] .stars i{background:#9aa8c8}
+  @keyframes tw{0%,100%{opacity:.2}50%{opacity:.9}}
+  @media(prefers-reduced-motion:reduce){.stars i{animation:none}}
+
+  .wrap{position:relative;z-index:1;display:grid;grid-template-columns:252px 1fr;max-width:1260px;margin:0 auto}
+
+  /* sidebar */
+  aside{position:sticky;top:0;height:100vh;overflow-y:auto;border-right:1px solid var(--line);padding:24px 16px 60px;background:linear-gradient(180deg,var(--panel),var(--bg2));backdrop-filter:blur(8px)}
+  .brand{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:700;display:flex;align-items:center;gap:6px}
+  aside h1{font-size:18px;margin:6px 0 16px;letter-spacing:-.01em;line-height:1.3}
+  .themebtn{width:100%;border:1px solid var(--line);background:var(--panel2);color:var(--ink-soft);padding:8px;border-radius:9px;font-size:13px;cursor:pointer;margin-bottom:16px;font-family:inherit;transition:.2s;display:flex;align-items:center;justify-content:center;gap:7px}
+  .themebtn:hover{border-color:var(--accent);color:var(--accent)}
+  .progress-bar{height:6px;background:var(--line);border-radius:99px;overflow:hidden}
+  .progress-fill{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--gold));transition:width .4s}
+  .progress-label{font-size:12px;color:var(--ink-soft);margin:6px 0 18px;font-variant-numeric:tabular-nums}
+  nav a{display:flex;align-items:baseline;gap:9px;padding:7px 10px;border-radius:8px;color:var(--ink-soft);text-decoration:none;font-size:14px;transition:.15s}
+  nav a:hover{background:var(--accent-bg);color:var(--accent)}
+  nav a.active{background:var(--accent-bg);color:var(--accent);font-weight:600}
+  nav a .n{font-family:var(--mono);font-size:11px;color:var(--gold);font-weight:700;min-width:18px}
+  nav .grp{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-dim);margin:16px 0 4px 10px;font-weight:700}
+
+  main{padding:40px 52px 120px;min-width:0}
+
+  /* hero with spectrum */
+  .hero{margin-bottom:42px;padding-bottom:28px;border-bottom:1px solid var(--line)}
+  .hero .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:700}
+  .hero h2{font-size:36px;margin:10px 0 14px;letter-spacing:-.02em;line-height:1.12}
+  .hero p{color:var(--ink-soft);max-width:62ch;margin:0 0 20px}
+  .spectrum{height:10px;border-radius:99px;background:linear-gradient(90deg,var(--O),var(--B),var(--A),var(--F),var(--G),var(--K),var(--M));margin-bottom:8px;box-shadow:0 0 24px rgba(110,168,255,.3)}
+  .spectrum-labels{display:flex;justify-content:space-between;font-family:var(--mono);font-size:12px;color:var(--ink-dim);font-weight:700}
+  .spectrum-labels b{color:var(--ink-soft)}
+
+  section{margin-bottom:54px;scroll-margin-top:20px}
+  .unit-head{display:flex;align-items:center;gap:14px;margin-bottom:6px}
+  .unit-num{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--bg);background:linear-gradient(135deg,var(--accent),var(--gold));width:36px;height:36px;border-radius:10px;display:grid;place-items:center;flex-shrink:0;box-shadow:0 4px 16px var(--accent-bg)}
+  .unit-head h3{font-size:25px;margin:0;letter-spacing:-.015em}
+  .unit-sub{color:var(--ink-soft);font-size:14px;margin:0 0 22px 50px}
+
+  h4{font-size:18px;margin:30px 0 12px;display:flex;align-items:center;gap:9px;letter-spacing:-.01em}
+  h4 .tag{font-family:var(--mono);font-size:11px;color:var(--accent);background:var(--accent-bg);padding:2px 8px;border-radius:5px;font-weight:700;white-space:nowrap}
+  p{margin:0 0 13px}
+  strong{color:var(--ink);font-weight:700}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin-bottom:16px}
+
+  .trap,.tip,.chain,.law{border-radius:12px;padding:14px 18px;margin:15px 0;font-size:15px}
+  .trap{background:var(--warn-bg);border-left:3px solid var(--warn)}
+  .trap b{color:var(--warn)}
+  .tip{background:var(--green-bg);border-left:3px solid var(--green)}
+  .tip b{color:var(--green)}
+  .chain{background:var(--accent-bg);border-left:3px solid var(--accent);font-family:var(--mono);font-size:13px;line-height:1.85;white-space:pre-wrap;overflow-x:auto}
+  .chain b{color:var(--accent)}
+  .law{background:var(--gold-bg);border-left:3px solid var(--gold)}
+  .law b{color:var(--gold)}
+  .law .f{font-family:var(--mono);font-size:15px;color:var(--ink);background:var(--panel2);padding:3px 9px;border-radius:6px;display:inline-block;margin:2px 0}
+
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:14.5px;background:var(--panel);border-radius:10px;overflow:hidden;border:1px solid var(--line)}
+  th{background:var(--panel2);text-align:left;padding:9px 13px;font-weight:700;font-size:13px;border-bottom:1px solid var(--line)}
+  td{padding:9px 13px;border-bottom:1px solid var(--line);vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  tr:hover td{background:var(--panel2)}
+  .hl{color:var(--warn);font-weight:700}
+  code{font-family:var(--mono);font-size:.88em;background:var(--panel2);padding:1px 5px;border-radius:4px;color:var(--gold)}
+
+  /* spectral chips */
+  .specrow{display:flex;gap:4px;flex-wrap:wrap;margin:12px 0}
+  .spec{font-family:var(--mono);font-weight:700;font-size:13px;padding:8px 12px;border-radius:8px;color:#0a0e1a;text-align:center;min-width:120px;flex:1}
+  .spec small{display:block;font-size:10px;font-weight:600;opacity:.75}
+
+  .conn{counter-reset:c;list-style:none;padding:0;margin:0}
+  .conn li{counter-increment:c;position:relative;padding:12px 16px 12px 52px;background:var(--panel);border:1px solid var(--line);border-radius:10px;margin-bottom:10px;font-size:15px}
+  .conn li::before{content:counter(c);position:absolute;left:14px;top:12px;font-family:var(--mono);font-weight:700;color:var(--bg);background:var(--gold);width:26px;height:26px;border-radius:7px;display:grid;place-items:center;font-size:13px}
+
+  .check label{display:flex;align-items:flex-start;gap:11px;padding:11px 15px;background:var(--panel);border:1px solid var(--line);border-radius:10px;margin-bottom:8px;cursor:pointer;font-size:15px;transition:.15s;user-select:none}
+  .check label:hover{border-color:var(--warn);background:var(--warn-bg)}
+  .check input{margin-top:4px;width:17px;height:17px;accent-color:var(--green);flex-shrink:0;cursor:pointer}
+  .check input:checked + span{text-decoration:line-through;color:var(--ink-dim)}
+
+  .quiz details{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:10px;margin-bottom:12px;overflow:hidden}
+  .quiz summary{padding:15px 18px;cursor:pointer;font-weight:600;font-size:15.5px;list-style:none;display:flex;gap:11px;align-items:baseline}
+  .quiz summary:hover{background:var(--accent-bg)}
+  .quiz summary::-webkit-details-marker{display:none}
+  .quiz summary .qn{font-family:var(--mono);font-size:13px;color:var(--bg);background:var(--accent);padding:2px 9px;border-radius:6px;font-weight:700;flex-shrink:0}
+  .quiz summary::after{content:'정답 ▾';margin-left:auto;font-size:12px;color:var(--accent);font-weight:600;white-space:nowrap}
+  .quiz details[open] summary::after{content:'접기 ▴'}
+  .quiz .ans{padding:14px 18px 18px;font-size:15px;color:var(--ink-soft);border-top:1px dashed var(--line)}
+  .quiz .ans b{color:var(--green)} .quiz .ans .hl{color:var(--warn)}
+
+  footer{margin-top:60px;padding-top:24px;border-top:1px solid var(--line);color:var(--ink-dim);font-size:13px;text-align:center}
+
+  @media(max-width:880px){
+    .wrap{grid-template-columns:1fr}
+    aside{position:static;height:auto;border-right:none;border-bottom:1px solid var(--line)}
+    aside nav{display:grid;grid-template-columns:1fr 1fr}
+    aside .brand,aside h1,.themebtn,.progress-bar,.progress-label{grid-column:1/-1}
+    main{padding:28px 20px 80px}.hero h2{font-size:27px}.unit-sub{margin-left:0}
+    .spec{min-width:calc(50% - 4px)}
+  }
+  @media print{.stars,aside,.themebtn{display:none}.wrap{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="stars" id="stars"></div>
+<div class="wrap">
+
+  <aside>
+    <div class="brand">✦ 지구과학 및 실험 I</div>
+    <h1>천문 종합 학습</h1>
+    <button class="themebtn" id="themebtn">◐ 라이트 모드로</button>
+    <div class="progress-bar"><div class="progress-fill" id="pfill"></div></div>
+    <div class="progress-label" id="plabel">약점 점검 0 / 12</div>
+    <nav id="nav">
+      <div class="grp">개요</div>
+      <a href="#intro"><span class="n">·</span>관통 원리</a>
+      <div class="grp">단원</div>
+      <a href="#u6"><span class="n">06</span>별의 물리량</a>
+      <a href="#u7"><span class="n">07</span>H-R도·별의 진화</a>
+      <a href="#u8"><span class="n">08</span>가장 가까운 별, 태양</a>
+      <a href="#u9"><span class="n">09</span>외계행성·생명체</a>
+      <div class="grp">마무리</div>
+      <a href="#connect"><span class="n">★</span>연결고리</a>
+      <a href="#weak"><span class="n">!</span>약점 체크</a>
+      <a href="#quiz"><span class="n">Q</span>퀴즈 12문항</a>
+    </nav>
+  </aside>
+
+  <main>
+    <div class="hero">
+      <div class="eyebrow">✦ 천문 단원 · 06–09</div>
+      <h2>별빛 하나에<br>물리량이 다 담겨 있습니다</h2>
+      <p>별의 <strong>색</strong>으로 온도를 읽고(06) → 온도·광도를 한 평면에 찍으면 <strong>H-R도</strong>가 되고(07) → 가장 가까운 별 <strong>태양</strong>을 자세히 보고(08) → 그 원리로 <strong>다른 별의 행성</strong>까지 찾습니다(09).</p>
+      <div class="spectrum"></div>
+      <div class="spectrum-labels"><b>O</b><span>B</span><span>A</span><span>F</span><span>G</span><span>K</span><b>M</b></div>
+      <div class="spectrum-labels" style="margin-top:4px"><span>← 고온·파랑</span><span>저온·빨강 →</span></div>
+    </div>
+
+    <section id="intro">
+      <h4><span class="tag">왜?</span>이 두 가지가 천문 단원 전체를 꿰뚫습니다</h4>
+      <div class="card">
+        <p><strong>① "온도 → 색 → 분광형"이 출발점.</strong> 빈의 변위 법칙(온도↑ → 최대 복사 파장↓ → 파랑)이 06의 분광형, 07의 H-R도 가로축, 08 태양 분광형(G2)을 전부 지배합니다.</p>
+        <p style="margin-bottom:0"><strong>② "질량이 별의 운명을 결정한다".</strong> 질량이 크면 → 주계열 짧고 → 거성·초거성 → 초신성 → 중성자별/블랙홀. 질량이 별의 일생(07)과 생명 가능 지대(09)를 모두 가릅니다.</p>
+      </div>
+    </section>
+
+    <!-- ===== 06 ===== -->
+    <section id="u6">
+      <div class="unit-head"><div class="unit-num">06</div><h3>별의 물리량</h3></div>
+      <p class="unit-sub">별빛에서 온도·광도·크기를 읽어내는 법.</p>
+
+      <h4>1. 별의 색과 표면 온도 — 흑체 복사</h4>
+      <p><strong>흑체</strong>: 입사 에너지를 모두 흡수·방출하는 이상 물체. 별은 거의 흑체라서, 흑체로 가정해 온도·광도를 추정합니다.</p>
+      <div class="law"><b>슈테판·볼츠만 법칙</b><br><span class="f">E = σT⁴</span> — 단위 넓이가 단위 시간에 방출하는 에너지는 <strong>표면 온도의 4제곱</strong>에 비례. (온도 2배 → 에너지 16배)</div>
+      <div class="law"><b>빈의 변위 법칙</b><br><span class="f">λ_max = a / T</span> — 온도가 높을수록 <strong>최대 에너지 파장이 짧아짐</strong>(파랗게). 온도와 반비례.</div>
+      <div class="tip"><b>플랑크 곡선:</b> 온도 높을수록 <b>모든 파장에서</b> 더 많은 에너지 방출(곡선이 통째로 위로) + 최대 파장은 왼쪽(짧은 쪽)으로. 곡선 아래 넓이 = 총 방출 에너지(=σT⁴).</div>
+
+      <h4>2. 분광형 — 흡수선으로 온도 분류</h4>
+      <p><strong>흡수 스펙트럼</strong>: 별빛이 별의 대기를 지나며 특정 파장이 흡수돼 검은 선(흡수선) 발생. <strong>별의 구성 성분은 비슷한데 스펙트럼이 다른 이유 = 표면 온도가 달라 원소의 이온화 정도가 다르기 때문.</strong></p>
+      <div class="specrow">
+        <div class="spec" style="background:var(--O)">O<small>3만K↑ 파랑</small></div>
+        <div class="spec" style="background:var(--B)">B<small></small></div>
+        <div class="spec" style="background:var(--A)">A<small>수소선 최강</small></div>
+        <div class="spec" style="background:var(--F);color:#333">F<small></small></div>
+        <div class="spec" style="background:var(--G);color:#333">G<small>태양 G2</small></div>
+        <div class="spec" style="background:var(--K);color:#333">K<small></small></div>
+        <div class="spec" style="background:var(--M)">M<small>3천K 빨강</small></div>
+      </div>
+      <div class="tip"><b>암기:</b> <b>O B A F G K M</b> = "Oh Be A Fine Girl/Guy, Kiss Me". O가 가장 뜨겁고(파랑) M이 가장 차가움(빨강). 각 형은 0~9로 세분. <b>태양 = G2, 약 5800K</b>. <b>A형 = 수소 흡수선 최강.</b></div>
+
+      <h4>3. 광도와 밝기</h4>
+      <p><strong>광도(L)</strong> = 별이 단위 시간에 표면에서 방출하는 총 에너지. 표면적 × σT⁴.</p>
+      <div class="law"><b>광도 공식</b><br><span class="f">L = 4πR² · σT⁴</span> — 표면적(4πR²) × 단위넓이 방출량(σT⁴). → 광도·온도를 알면 <strong>반지름 R</strong>을 역산.</div>
+      <div class="law"><b>포그슨 공식</b><br><span class="f">m₁ − m₂ = −2.5 log(l₁/l₂)</span> — 5등급 차 = 밝기 100배. 한 등급 = 약 2.5배. 등급 작을수록 밝음.</div>
+      <table>
+        <tr><th></th><th>절대 등급</th><th>겉보기 등급</th></tr>
+        <tr><td>정의</td><td>10pc 거리 가정 시 밝기(실제 밝기)</td><td>눈에 보이는 밝기</td></tr>
+        <tr><td>영향</td><td>광도만</td><td>거리 + 광도</td></tr>
+        <tr><td>특징</td><td>광도 클수록 절대등급 작음</td><td>가깝고 밝을수록 작음</td></tr>
+      </table>
+    </section>
+
+    <!-- ===== 07 ===== -->
+    <section id="u7">
+      <div class="unit-head"><div class="unit-num">07</div><h3>H-R도와 별의 진화</h3></div>
+      <p class="unit-sub">온도·광도를 한 평면에 찍으면 별의 일생이 보입니다.</p>
+
+      <h4>1. H-R도 — 가로 온도, 세로 광도</h4>
+      <p>헤르츠스프룽 + 러셀. <strong>가로축 = 분광형/표면 온도</strong>(왼쪽이 고온), <strong>세로축 = 절대 등급/광도</strong>(위가 밝음).</p>
+      <table>
+        <tr><th>종류</th><th>위치</th><th>특징</th></tr>
+        <tr><td><strong>주계열성</strong></td><td>좌상→우하 대각선</td><td>별의 <strong>80%+</strong>. 온도↑일수록 광도·반지름·질량 큼</td></tr>
+        <tr><td>거성</td><td>주계열 오른쪽 위</td><td>온도 낮은데 광도 큼 → <strong>반지름 큼</strong></td></tr>
+        <tr><td>초거성</td><td>거성보다 위</td><td>반지름 매우 큼 → <strong>밀도 작음</strong></td></tr>
+        <tr><td>백색왜성</td><td>왼쪽 아래</td><td>온도 높은데 광도 작음 → 반지름 작고 <strong>밀도 큼</strong></td></tr>
+      </table>
+      <div class="tip"><b>평균 밀도:</b> 백색왜성 &gt; 주계열성 &gt; 거성 &gt; 초거성. <b>광도 계급</b>(MK 분류): 태양 = <b>G2V</b>(G2 + 주계열 V).</div>
+
+      <h4>2. 별의 에너지원</h4>
+      <p><strong>중력 수축 에너지</strong>: 수축하며 위치E → 운동E(내부 온도↑) + 복사E(빛). <strong>핵융합 에너지</strong>: <strong>질량 결손</strong>이 에너지로(E=mc²).</p>
+      <div class="chain"><b>핵융합 순서:</b> 수소 → 헬륨 → 탄소 → 네온 → 산소 → 규소 → <b>철(마지막)</b>
+수소핵융합: 1000만K↑ / 헬륨핵융합(3α): 1억K↑</div>
+      <table>
+        <tr><th></th><th>P-P 반응</th><th>CNO 순환</th></tr>
+        <tr><td>질량</td><td>태양 2배 이하</td><td>태양 2배 이상</td></tr>
+        <tr><td>중심온도</td><td>1800만K 이하</td><td>1800만K 이상</td></tr>
+        <tr><td>특징</td><td>—</td><td>더 격렬, 밝고 수소 빨리 소비</td></tr>
+      </table>
+
+      <h4>3. 별의 진화 — 질량이 운명을 결정 <span class="tag">최빈출</span></h4>
+      <div class="chain">원시별(전주계열, 핵융합 X)
+ → <b>주계열</b>(수소 핵융합 시작, 일생 80~90%, 정역학 평형)
+ → 적색거성/초거성(중심 수소 소진 → 수축 → 외곽 팽창)
+ → 행성상성운 + <b>백색왜성</b> (태양급)
+ → 초신성 → <b>중성자별/블랙홀</b> (대질량)</div>
+      <div class="trap"><b>⚠️ 주계열 기간 = 질량 클수록 짧다!</b> (직관과 반대 — 연료 많아도 훨씬 빨리 태움) 태양급 = 약 100억 년. 질량 큰 별일수록 좌상단, 수명 짧음.</div>
+      <table>
+        <tr><th>초기 질량(태양=1)</th><th>최종 단계</th></tr>
+        <tr><td>0.08 ~ 10</td><td>백색왜성</td></tr>
+        <tr><td>10 ~ 40</td><td>중성자별</td></tr>
+        <tr><td>40 이상</td><td>블랙홀</td></tr>
+      </table>
+      <div class="tip"><b>대질량 별 최후:</b> 철 핵은 핵융합 불가 → 중력 못 버텨 급수축 → <b>초신성 폭발</b> → 이때 비로소 <b>철보다 무거운 원소</b> 생성·방출. (1단원 "초신성이 무거운 원소를 흩뿌린다"와 연결)</div>
+      <div class="tip"><b>에너지 전달 구조:</b> 태양급(중심 복사·바깥 대류) ↔ 태양 1.5배↑(중심 대류·바깥 복사). 서로 반대.</div>
+    </section>
+
+    <!-- ===== 08 ===== -->
+    <section id="u8">
+      <div class="unit-head"><div class="unit-num">08</div><h3>가장 가까운 별, 태양</h3></div>
+      <p class="unit-sub">1단원 흑점이 여기서 더 깊어집니다 — 내부·표면·대기·활동.</p>
+
+      <h4>1. 태양이 중요한 이유 · 내부 구조</h4>
+      <p>태양계 질량의 <strong>99.9%</strong>, 에너지 대부분의 근원, 가장 가까운 항성(다른 별 연구의 기초). 중심핵에서 <strong>수소 핵융합</strong>(주계열성).</p>
+      <div class="chain"><b>내부(중심→밖):</b> 핵(~0.3R) → 복사층(~0.7R) → 대류층 → [광구]
+핵=에너지 생성 / 복사층=복사로 전달 / 대류층=대류로 전달</div>
+
+      <h4>2. 태양의 표면(광구)</h4>
+      <p><strong>광구</strong>: 눈에 보이는 표면, 태양 복사 대부분이 여기서 방출. <strong>쌀알무늬</strong>: 광구 아래 <strong>대류</strong> 때문(밝은 중심=상승, 어두운 가장자리=하강·냉각). 지름 ~1000km, 수명 5~수십 분.</p>
+      <div class="trap"><b>흑점 ★핵심★:</b> <b>강한 자기장이 대류에 의한 에너지 전달을 방해</b> → 주변보다 온도 낮아(~3,800K) 검게 보임. 크기 ~10,000km. 암부(중심·가장 어두움) + 반암부.</div>
+      <div class="tip"><b>차등 자전 ★중요★:</b> 흑점으로 측정한 자전 주기 = 적도 25일, 중위도 27일, 극 35일. <b>고위도로 갈수록 자전 주기 길다.</b> 태양이 고체가 아니라서.</div>
+      <div class="trap"><b>자기 활동 주기 = 22년 ★함정★:</b> 흑점 수 극대·극소는 <b>11년</b> 주기지만, 새 주기 흑점은 이전과 <b>극성이 반대</b> → 극성까지 제자리로 돌아오려면 <b>22년</b>이 진짜 활동 주기. 흑점은 중위도→저위도로 이동(나비도).</div>
+
+      <h4>3. 태양의 대기 — 위로 갈수록 뜨거워짐</h4>
+      <table>
+        <tr><th>층</th><th>특징</th></tr>
+        <tr><td><strong>채층</strong></td><td>하부 대기(광구 위 ~1만km), 4500→6000K로 상승, <strong>수소 알파선</strong>(656.3nm)으로 분홍색, 개기일식 때만</td></tr>
+        <tr><td><strong>코로나</strong></td><td>상부 대기, 밀도 매우 작음, <strong>약 100만K</strong>(매우 뜨거움) → 자외선·X선 방출, 개기일식 때 진줏빛</td></tr>
+      </table>
+      <p><strong>채층 현상</strong>: 스피큘(채층 위 솟는 가스, 수명 15분↓) · 홍염(채층→코로나 뻗는 가스, 원반에선 필라멘트로 보임).</p>
+      <div class="tip"><b>코로나에서 나오는 것</b> — <b>태양풍</b>(고온이라 입자가 중력 탈출, 양성자·전자, 지구 부근 ~400km/s) · <b>플레어</b>(폭발, X선·자외선이 빛 속도로 와 이온층 교란 → 전파 통신 장애) · CME(코로나 물질 분출). 모두 흑점 극대기에 활발.</div>
+      <div class="trap"><b>⚠️ 코로나 역설:</b> 코로나는 광구(5800K)보다 <b>훨씬 뜨거운데(100만K)</b>, 입자 <b>개수 밀도는 매우 낮음</b>. "뜨겁다 = 입자가 많다"가 아님.</div>
+    </section>
+
+    <!-- ===== 09 ===== -->
+    <section id="u9">
+      <div class="unit-head"><div class="unit-num">09</div><h3>외계 행성과 생명체 탐사</h3></div>
+      <p class="unit-sub">별빛의 미세한 변화로 보이지 않는 행성을 찾습니다.</p>
+
+      <h4>1. 외계 행성 탐사 4가지 방법 <span class="tag">최빈출</span></h4>
+      <table>
+        <tr><th>방법</th><th>원리</th><th>한계 / 발견 경향</th></tr>
+        <tr><td><strong>시선 속도</strong>(도플러)</td><td>별·행성이 공통 질량중심 공전 → 별 스펙트럼 적색/청색 이동 반복</td><td>궤도면이 시선에 <strong>수직이면 불가</strong>. <strong>질량 큰</strong> 행성 발견 쉬움</td></tr>
+        <tr><td><strong>식 현상</strong>(통과)</td><td>행성이 별 앞 통과 → 별 밝기 감소. 감소량=크기비, 주기=공전주기</td><td>궤도면이 시선과 <strong>나란해야</strong> 함. <strong>공전 반지름 작은</strong> 행성</td></tr>
+        <tr><td><strong>미세 중력 렌즈</strong></td><td>앞 별의 중력으로 뒤 별빛 휨 + 행성 중력으로 밝기 변화 한 번 더</td><td>궤도면 무관·발견 가능, 그러나 <strong>주기 관측 불가</strong>(1회성). 반지름 큰 행성</td></tr>
+        <tr><td><strong>직접 촬영</strong></td><td>중심별 빛 가리고 행성 직접 촬영</td><td>중심별과 멀고 밝은 행성만. 거리 <strong>먼</strong> 외계행성</td></tr>
+      </table>
+      <div class="tip"><b>시선 속도 핵심:</b> 행성 질량 클수록 공통 질량중심이 행성 쪽으로 치우쳐 → 중심별 공전 속도↑ → 도플러 효과 큼 → 발견 쉬움. 시선 속도 최댓값 = <code>v·cosθ</code>(θ=궤도면과 시선의 각, 나란할수록 큼).</div>
+
+      <h4>2. 생명 가능 지대 (HZ)</h4>
+      <p><strong>가장 중요한 요소 = 액체 상태의 물.</strong> (비열 커 항상성 유지 + 극성이라 좋은 용매). <strong>생명 가능 지대 = 물이 액체로 존재하는 영역.</strong></p>
+      <div class="law"><b>HZ 위치·폭</b><br>전달 에너지 ∝ 광도, ∝ 1/거리². → <strong>광도 클수록 HZ가 멀어지고 넓어짐.</strong></div>
+      <table>
+        <tr><th>중심별</th><th>생명 가능 지대 특징</th></tr>
+        <tr><td><strong>질량 큰 별</strong></td><td>수명 짧음 → 생명 진화 시간 부족, 광도 변화 커 HZ 변동 큼</td></tr>
+        <tr><td><strong>질량 작은 별</strong></td><td>HZ가 가깝고 좁음 → 행성이 들 확률 낮음, 너무 가까우면 <strong>동주기 자전</strong>(낮밤 없음)</td></tr>
+      </table>
+      <div class="trap"><b>⚠️ HZ에 있어도 생명체 보장 아님:</b> 추가로 <b>적당한 두께의 대기</b> + 고에너지 입자를 막을 <b>자기장</b>이 필요. (1단원 "자기장이 생명 보호"와 연결!)</div>
+    </section>
+
+    <!-- ===== CONNECT ===== -->
+    <section id="connect">
+      <h4><span class="tag">★</span>단원·과목을 가로지르는 연결</h4>
+      <ol class="conn">
+        <li><strong>온도 → 색 → 분광형</strong> → 06(빈 법칙·분광형) = 07(H-R도 가로축) = 08(태양 G2).</li>
+        <li><strong>질량이 운명 결정</strong> → 07(주계열 기간·최종 단계) = 09(생명 가능 지대 폭·수명).</li>
+        <li><strong>흑점 = 자기장이 대류를 막아 온도↓</strong> → 고체지구 1.5.3 = 천문 08. 똑같은 메커니즘, 08이 더 깊음(차등 자전·22년).</li>
+        <li><strong>태양풍·플레어·CME</strong> → 고체지구 1.5.3(태양 활동) = 천문 08(코로나). 전자·양성자 흐름.</li>
+        <li><strong>초신성이 무거운 원소를 흩뿌림</strong> → 07(대질량 별 최후) = 고체지구 1.1(성운 수축 계기).</li>
+        <li><strong>자기장이 생명 보호</strong> → 09(HZ 추가 조건) = 고체지구 1.5.4(2단 방어).</li>
+        <li><strong>플라즈마</strong> → 08(광구·태양풍) = 고체지구 1.5.3. 이온화 기체, 자기장 반응.</li>
+        <li><strong>도플러 효과</strong> → 09(시선 속도법). 적색이동=멀어짐, 청색이동=가까워짐.</li>
+      </ol>
+    </section>
+
+    <!-- ===== WEAK ===== -->
+    <section id="weak">
+      <h4><span class="tag">!</span>약점 집중 체크 — 외운 것만 체크</h4>
+      <div class="card check" id="checklist">
+        <label><input type="checkbox"><span>슈테판-볼츠만 E=σT⁴(4제곱), 빈 λ_max=a/T(반비례)</span></label>
+        <label><input type="checkbox"><span>분광형 OBAFGKM, O=고온·파랑 / M=저온·빨강, 태양 G2</span></label>
+        <label><input type="checkbox"><span>스펙트럼 다른 이유 = 표면 온도(이온화 정도) 차이</span></label>
+        <label><input type="checkbox"><span>L=4πR²σT⁴ → 광도·온도로 반지름 역산</span></label>
+        <label><input type="checkbox"><span>절대등급=광도만 / 겉보기등급=거리+광도</span></label>
+        <label><input type="checkbox"><span>밀도: 백색왜성&gt;주계열&gt;거성&gt;초거성</span></label>
+        <label><input type="checkbox"><span>주계열 기간 = 질량 클수록 짧다</span></label>
+        <label><input type="checkbox"><span>최종 단계: ~10 백색왜성 / 10~40 중성자별 / 40↑ 블랙홀</span></label>
+        <label><input type="checkbox"><span>흑점 = 자기장이 대류 방해 → 온도↓ / 고위도일수록 자전 느림</span></label>
+        <label><input type="checkbox"><span>자기 활동 주기 = 22년(11년은 흑점 수 주기)</span></label>
+        <label><input type="checkbox"><span>코로나 100만K인데 입자 밀도는 매우 낮음</span></label>
+        <label><input type="checkbox"><span>HZ에 있어도 대기·자기장 없으면 생명체 X</span></label>
+      </div>
+    </section>
+
+    <!-- ===== QUIZ ===== -->
+    <section id="quiz">
+      <h4><span class="tag">Q</span>퀴즈 12문항 — 먼저 답하고 펼쳐서 확인</h4>
+      <div class="quiz">
+        <details><summary><span class="qn">Q1</span>표면 온도가 2배인 흑체는 단위 넓이당 방출 에너지가 몇 배? 최대 복사 파장은?</summary>
+          <div class="ans">에너지 <b>16배</b>(σT⁴, 2⁴). 최대 파장은 <b>½배</b>(빈 법칙, T에 반비례).</div></details>
+
+        <details><summary><span class="qn">Q2</span>별마다 구성 성분은 비슷한데 흡수 스펙트럼이 다른 이유는?</summary>
+          <div class="ans"><b>표면 온도가 달라서.</b> 온도에 따라 원소의 이온화 정도가 다르고, 이온화 단계마다 특정 흡수선을 만들어 흡수선의 종류·세기가 달라짐.</div></details>
+
+        <details><summary><span class="qn">Q3</span>분광형 순서와, 가장 뜨거운 형·태양의 분광형은?</summary>
+          <div class="ans"><b>O B A F G K M</b>(고온→저온, 파랑→빨강). 가장 뜨거운 건 <b>O형</b>, 태양은 <b>G2</b>(약 5800K). A형은 수소 흡수선 최강.</div></details>
+
+        <details><summary><span class="qn">Q4</span>광도가 태양의 16배, 표면 온도가 태양의 0.5배인 별의 반지름은 태양의 몇 배?</summary>
+          <div class="ans">L=4πR²σT⁴ → R ∝ √L / T². R = √16 / 0.5² = 4 / 0.25 = <b>16배</b>.</div></details>
+
+        <details><summary><span class="qn">Q5</span>절대 등급과 겉보기 등급은 각각 무엇에 영향받나?</summary>
+          <div class="ans"><b>절대등급</b>: 10pc 거리 가정한 실제 밝기 → <b>광도만</b>. <b>겉보기등급</b>: <b>거리 + 광도</b>. 둘 다 작을수록 밝음.</div></details>
+
+        <details><summary><span class="qn">Q6</span>H-R도에서 거성과 백색왜성의 밀도를 비교하면? 주계열성은 어디에 분포?</summary>
+          <div class="ans">밀도 <b>백색왜성 ≫ 거성</b>(전체 순: 백색왜성&gt;주계열&gt;거성&gt;초거성). 주계열성은 <b>좌상→우하 대각선</b>, 별의 80%+.</div></details>
+
+        <details><summary><span class="qn">Q7</span>주계열 단계에 머무는 기간은 질량이 클수록 길까 짧을까? 이유는?</summary>
+          <div class="ans"><b>짧다.</b> 질량 크면 연료는 많지만 중심 온도가 높아 핵융합이 훨씬 격렬해 연료를 빠르게 소비. (태양급 ≈ 100억 년)</div></details>
+
+        <details><summary><span class="qn">Q8</span>초기 질량에 따른 별의 최종 단계 3가지는?</summary>
+          <div class="ans">~10 태양질량 = <b>백색왜성</b>, 10~40 = <b>중성자별</b>, 40↑ = <b>블랙홀</b>. 철보다 무거운 원소는 초신성 폭발에서 생성.</div></details>
+
+        <details><summary><span class="qn">Q9</span>흑점이 주변보다 어두운(온도 낮은) 이유는?</summary>
+          <div class="ans"><b>강한 자기장이 대류에 의한 에너지 전달을 방해</b> → 열 공급 차단 → 온도 낮아짐(~3,800K) → 어둡게 보임.</div></details>
+
+        <details><summary><span class="qn">Q10</span>태양의 자기 활동 주기가 11년이 아니라 22년인 이유는?</summary>
+          <div class="ans">흑점 수 극대·극소는 11년 주기지만, <b>새 주기 흑점은 이전 주기와 극성이 반대</b>. 극성까지 원래대로 돌아오려면 11×2 = <b>22년</b>이 진짜 주기.</div></details>
+
+        <details><summary><span class="qn">Q11</span>식 현상(통과)법과 시선 속도(도플러)법은 각각 어떤 행성을 발견하기 쉬운가? 공통 한계는?</summary>
+          <div class="ans"><b>식 현상</b>: 공전 반지름 작은(가까운) 행성. <b>시선 속도</b>: 질량 큰 행성. 공통 한계 — 둘 다 궤도면이 시선과 <span class="hl">나란해야</span>(수직이면 불가). 미세 중력 렌즈는 궤도면 무관.</div></details>
+
+        <details><summary><span class="qn">Q12</span>행성이 생명 가능 지대에 있으면 반드시 생명체가 존재하는가?</summary>
+          <div class="ans"><b>아니다.</b> 물이 액체일 조건은 충족하지만, 추가로 <b>적당한 두께의 대기</b>와 고에너지 입자를 막을 <b>자기장</b>이 필요. (고체지구 자기장 단원과 연결)</div></details>
+      </div>
+    </section>
+
+    <footer>천문 단원 06–09 · 별빛에서 우주를 읽다 ✦ 화이팅</footer>
+  </main>
+</div>
+
+<script>
+  // starfield
+  const sf=document.getElementById('stars');
+  for(let i=0;i<70;i++){const s=document.createElement('i');const sz=Math.random()*2+1;
+    s.style.width=s.style.height=sz+'px';s.style.left=Math.random()*100+'%';s.style.top=Math.random()*100+'%';
+    s.style.animationDelay=(Math.random()*4)+'s';sf.appendChild(s);}
+
+  // theme toggle
+  const tb=document.getElementById('themebtn'),root=document.documentElement;
+  tb.addEventListener('click',()=>{
+    const light=root.getAttribute('data-theme')==='light';
+    root.setAttribute('data-theme',light?'dark':'light');
+    tb.textContent=light?'◐ 라이트 모드로':'◑ 다크 모드로';
+  });
+
+  // progress
+  const boxes=[...document.querySelectorAll('#checklist input')];
+  const fill=document.getElementById('pfill'),lbl=document.getElementById('plabel');
+  function upd(){const n=boxes.filter(b=>b.checked).length;fill.style.width=(n/boxes.length*100)+'%';lbl.textContent='약점 점검 '+n+' / '+boxes.length;}
+  boxes.forEach(b=>b.addEventListener('change',upd));
+
+  // scrollspy
+  const links=[...document.querySelectorAll('#nav a')];
+  const secs=links.map(a=>document.querySelector(a.getAttribute('href')));
+  const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){
+    const id='#'+e.target.id;links.forEach(l=>l.classList.toggle('active',l.getAttribute('href')===id));}});},
+    {rootMargin:'-15% 0px -75% 0px'});
+  secs.forEach(s=>s&&obs.observe(s));
+</script>
+</body>
+</html>
