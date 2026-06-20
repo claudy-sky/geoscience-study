@@ -3,557 +3,141 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>고체지구 종합 학습</title>
+<title>지구과학 및 실험 I · 통합 학습</title>
 <style>
   :root{
-    --bg:#f7f5f0;
-    --paper:#ffffff;
-    --ink:#1c2230;
-    --ink-soft:#4a5468;
-    --line:#e3ddd0;
-    --accent:#2b5f8c;      /* 깊은 청색 - 지구/바다 */
-    --accent-soft:#e8f0f7;
-    --warn:#b4541f;        /* 함정 표시 - 적동색 */
-    --warn-soft:#fbeee5;
-    --gold:#b08428;        /* 강조/별 */
-    --gold-soft:#f7efda;
-    --green:#3f7150;
-    --green-soft:#e7f0ea;
-    --shadow:0 1px 3px rgba(28,34,48,.06),0 8px 24px rgba(28,34,48,.05);
+    --bg:#0a0e1a; --bg2:#0e1424;
+    --panel:#141b30; --panel2:#1a2238;
+    --ink:#eef2fb; --ink-soft:#a6b0c8; --ink-dim:#6f7a96;
+    --line:#26304c;
+    --earth:#6ea8ff; --earth-bg:rgba(110,168,255,.12);
+    --sky:#ffd66b; --sky-bg:rgba(255,214,107,.12);
+    --green:#7ee0a8;
     --mono:'SFMono-Regular',ui-monospace,'JetBrains Mono',Menlo,Consolas,monospace;
   }
   *{box-sizing:border-box}
   html{scroll-behavior:smooth}
   body{
-    margin:0;background:var(--bg);color:var(--ink);
-    font-family:'Pretendard',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Segoe UI',Roboto,sans-serif;
-    line-height:1.65;font-size:16px;-webkit-font-smoothing:antialiased;
+    margin:0;min-height:100vh;background:radial-gradient(1200px 700px at 80% -10%,rgba(110,168,255,.14),transparent 60%),radial-gradient(900px 600px at 0% 110%,rgba(255,214,107,.1),transparent 55%),var(--bg);
+    color:var(--ink);font-family:'Pretendard',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Segoe UI',Roboto,sans-serif;
+    line-height:1.65;-webkit-font-smoothing:antialiased;
   }
-  ::selection{background:var(--gold-soft)}
+  ::selection{background:var(--sky-bg)}
 
-  /* ===== Layout ===== */
-  .wrap{display:grid;grid-template-columns:248px 1fr;max-width:1240px;margin:0 auto;gap:0}
-  /* Sidebar */
-  aside{
-    position:sticky;top:0;height:100vh;overflow-y:auto;
-    border-right:1px solid var(--line);padding:26px 18px 60px;background:var(--paper);
+  /* starfield */
+  .stars{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+  .stars i{position:absolute;background:#fff;border-radius:50%;opacity:.7;animation:tw 4s ease-in-out infinite}
+  @keyframes tw{0%,100%{opacity:.18}50%{opacity:.85}}
+  @media(prefers-reduced-motion:reduce){.stars i{animation:none}}
+
+  .wrap{position:relative;z-index:1;max-width:980px;margin:0 auto;padding:80px 28px 90px}
+
+  header{text-align:center;margin-bottom:54px}
+  .eyebrow{font-family:var(--mono);font-size:13px;letter-spacing:.22em;text-transform:uppercase;color:var(--sky);font-weight:700}
+  header h1{font-size:clamp(30px,6vw,48px);margin:14px 0 16px;letter-spacing:-.02em;line-height:1.1}
+  header p{color:var(--ink-soft);max-width:60ch;margin:0 auto;font-size:17px}
+  .spectrum{height:8px;border-radius:99px;max-width:420px;margin:26px auto 0;background:linear-gradient(90deg,#9bb0ff,#cad8ff,#fff4cc,#ffd2a1,#ff9d7a);box-shadow:0 0 30px rgba(110,168,255,.35)}
+
+  .cards{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-bottom:46px}
+  .card{
+    position:relative;display:flex;flex-direction:column;
+    background:linear-gradient(180deg,var(--panel),var(--bg2));
+    border:1px solid var(--line);border-radius:18px;padding:30px 28px 26px;
+    text-decoration:none;color:inherit;overflow:hidden;
+    transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease;
   }
-  aside .brand{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:4px}
-  aside h1{font-size:18px;margin:0 0 18px;letter-spacing:-.01em;line-height:1.3}
-  .progress-wrap{margin-bottom:20px}
-  .progress-bar{height:6px;background:var(--line);border-radius:99px;overflow:hidden}
-  .progress-fill{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--gold));transition:width .4s ease}
-  .progress-label{font-size:12px;color:var(--ink-soft);margin-top:6px;font-variant-numeric:tabular-nums}
-  nav a{
-    display:flex;align-items:baseline;gap:8px;padding:7px 10px;border-radius:8px;
-    color:var(--ink-soft);text-decoration:none;font-size:14px;transition:background .15s,color .15s;
+  .card::before{content:"";position:absolute;inset:0 0 auto 0;height:4px;background:var(--c)}
+  .card:hover{transform:translateY(-5px);border-color:var(--c);box-shadow:0 18px 40px rgba(0,0,0,.4)}
+  .card .icon{font-size:38px;line-height:1;margin-bottom:14px}
+  .card .kicker{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.12em;color:var(--c);text-transform:uppercase}
+  .card h2{font-size:23px;margin:6px 0 10px;letter-spacing:-.015em}
+  .card p{color:var(--ink-soft);font-size:14.5px;margin:0 0 18px}
+  .chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:20px}
+  .chip{font-size:12.5px;padding:4px 11px;border-radius:99px;background:var(--cbg);color:var(--ink);border:1px solid var(--line);font-weight:600}
+  .go{margin-top:auto;display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:15px;color:var(--c)}
+  .go .arr{transition:transform .25s}
+  .card:hover .go .arr{transform:translateX(4px)}
+
+  .card.earth{--c:var(--earth);--cbg:var(--earth-bg)}
+  .card.sky{--c:var(--sky);--cbg:var(--sky-bg)}
+
+  /* through-line strip */
+  .thru{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px 26px}
+  .thru h3{margin:0 0 12px;font-size:16px;display:flex;align-items:center;gap:9px}
+  .thru h3 .tag{font-family:var(--mono);font-size:11px;color:var(--green);background:rgba(126,224,168,.12);padding:2px 8px;border-radius:5px;font-weight:700}
+  .thru ul{margin:0;padding-left:20px;color:var(--ink-soft);font-size:14.5px}
+  .thru li{margin-bottom:7px}
+  .thru li:last-child{margin-bottom:0}
+  .thru b{color:var(--ink)}
+
+  footer{margin-top:48px;text-align:center;color:var(--ink-dim);font-size:13px}
+
+  @media(max-width:720px){
+    .wrap{padding:56px 20px 70px}
+    .cards{grid-template-columns:1fr}
   }
-  nav a:hover{background:var(--accent-soft);color:var(--accent)}
-  nav a.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
-  nav a .n{font-family:var(--mono);font-size:11px;color:var(--gold);font-weight:700;min-width:16px}
-  nav .grp{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#a39b88;margin:16px 0 4px 10px;font-weight:700}
-
-  /* Main */
-  main{padding:42px 52px 120px;min-width:0}
-  .hero{margin-bottom:40px;padding-bottom:30px;border-bottom:2px solid var(--ink)}
-  .hero .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:700}
-  .hero h2{font-size:34px;margin:8px 0 14px;letter-spacing:-.02em;line-height:1.15}
-  .hero p{color:var(--ink-soft);max-width:64ch;margin:0}
-  .keychips{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
-  .keychip{font-size:13px;padding:5px 12px;border-radius:99px;background:var(--gold-soft);color:#7a5a16;border:1px solid #ecdcb4;font-weight:600}
-
-  section{margin-bottom:54px;scroll-margin-top:20px}
-  .unit-head{display:flex;align-items:center;gap:14px;margin-bottom:8px}
-  .unit-num{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--paper);background:var(--accent);width:34px;height:34px;border-radius:9px;display:grid;place-items:center;flex-shrink:0}
-  .unit-head h3{font-size:25px;margin:0;letter-spacing:-.015em}
-  .unit-sub{color:var(--ink-soft);font-size:14px;margin:0 0 22px 48px}
-
-  h4{font-size:18px;margin:30px 0 12px;display:flex;align-items:center;gap:9px;letter-spacing:-.01em}
-  h4 .tag{font-family:var(--mono);font-size:11px;color:var(--accent);background:var(--accent-soft);padding:2px 7px;border-radius:5px;font-weight:700}
-  p{margin:0 0 14px}
-  strong{color:var(--ink);font-weight:700}
-  .card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:22px 24px;box-shadow:var(--shadow);margin-bottom:18px}
-
-  /* callouts */
-  .trap,.tip,.chain{border-radius:12px;padding:14px 18px;margin:16px 0;font-size:15px}
-  .trap{background:var(--warn-soft);border-left:4px solid var(--warn)}
-  .trap b{color:var(--warn)}
-  .tip{background:var(--green-soft);border-left:4px solid var(--green)}
-  .tip b{color:var(--green)}
-  .chain{background:var(--accent-soft);border-left:4px solid var(--accent);font-family:var(--mono);font-size:13.5px;line-height:1.9;white-space:pre-wrap;overflow-x:auto}
-  .chain b{color:var(--accent)}
-
-  /* tables */
-  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:14.5px;background:var(--paper);border-radius:10px;overflow:hidden;border:1px solid var(--line)}
-  th{background:#f0ece2;text-align:left;padding:9px 13px;font-weight:700;font-size:13px;color:var(--ink);border-bottom:1px solid var(--line)}
-  td{padding:9px 13px;border-bottom:1px solid var(--line);vertical-align:top}
-  tr:last-child td{border-bottom:none}
-  tr:hover td{background:#faf8f3}
-  .hl{color:var(--warn);font-weight:700}
-
-  code{font-family:var(--mono);font-size:.88em;background:#f0ece2;padding:1px 5px;border-radius:4px;color:#6b4a8c}
-
-  /* connections */
-  .conn{counter-reset:c;list-style:none;padding:0;margin:0}
-  .conn li{counter-increment:c;position:relative;padding:12px 16px 12px 52px;background:var(--paper);border:1px solid var(--line);border-radius:10px;margin-bottom:10px;font-size:15px}
-  .conn li::before{content:counter(c);position:absolute;left:14px;top:12px;font-family:var(--mono);font-weight:700;color:var(--paper);background:var(--gold);width:26px;height:26px;border-radius:7px;display:grid;place-items:center;font-size:13px}
-
-  /* checklist */
-  .check label{display:flex;align-items:flex-start;gap:11px;padding:11px 15px;background:var(--paper);border:1px solid var(--line);border-radius:10px;margin-bottom:8px;cursor:pointer;font-size:15px;transition:.15s;user-select:none}
-  .check label:hover{border-color:var(--warn);background:var(--warn-soft)}
-  .check input{margin-top:4px;width:17px;height:17px;accent-color:var(--green);flex-shrink:0;cursor:pointer}
-  .check input:checked + span{text-decoration:line-through;color:#a39b88}
-
-  /* quiz */
-  .quiz details{background:var(--paper);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;margin-bottom:12px;padding:0;overflow:hidden}
-  .quiz summary{padding:15px 18px;cursor:pointer;font-weight:600;font-size:15.5px;list-style:none;display:flex;gap:11px;align-items:baseline;transition:background .15s}
-  .quiz summary:hover{background:var(--accent-soft)}
-  .quiz summary::-webkit-details-marker{display:none}
-  .quiz summary .qn{font-family:var(--mono);font-size:13px;color:var(--paper);background:var(--accent);padding:2px 9px;border-radius:6px;font-weight:700;flex-shrink:0}
-  .quiz summary::after{content:'정답 보기 ▾';margin-left:auto;font-size:12px;color:var(--accent);font-weight:600;white-space:nowrap}
-  .quiz details[open] summary::after{content:'접기 ▴'}
-  .quiz .ans{padding:0 18px 18px 18px;font-size:15px;color:var(--ink-soft);border-top:1px dashed var(--line);margin-top:0;padding-top:14px}
-  .quiz .ans b{color:var(--green)}
-  .quiz .ans .hl{color:var(--warn)}
-
-  /* foldable units */
-  .fold > summary{list-style:none;cursor:pointer}
-  .fold > summary::-webkit-details-marker{display:none}
-
-  footer{margin-top:60px;padding-top:24px;border-top:1px solid var(--line);color:#a39b88;font-size:13px;text-align:center}
-
-  @media(max-width:880px){
-    .wrap{grid-template-columns:1fr}
-    aside{position:static;height:auto;border-right:none;border-bottom:1px solid var(--line)}
-    aside nav{display:grid;grid-template-columns:1fr 1fr}
-    aside .progress-wrap,aside .brand,aside h1{grid-column:1/-1}
-    main{padding:30px 22px 80px}
-    .hero h2{font-size:26px}
-    .unit-sub{margin-left:0}
-  }
-  @media print{aside{display:none}.wrap{grid-template-columns:1fr}.quiz details{open:true}}
 </style>
 </head>
 <body>
+<div class="stars" id="stars"></div>
 <div class="wrap">
 
-  <!-- ===== SIDEBAR ===== -->
-  <aside>
-    <div class="brand">지구과학 및 실험 I</div>
-    <h1>고체지구 종합 학습</h1>
-    <div class="progress-wrap">
-      <div class="progress-bar"><div class="progress-fill" id="pfill"></div></div>
-      <div class="progress-label" id="plabel">약점 점검 0 / 14</div>
-    </div>
-    <nav id="nav">
-      <div class="grp">개요</div>
-      <a href="#intro"><span class="n">·</span>핵심 연결고리</a>
-      <div class="grp">단원</div>
-      <a href="#u1"><span class="n">1</span>지구의 탄생</a>
-      <a href="#u2"><span class="n">2</span>판구조론</a>
-      <a href="#u3"><span class="n">3</span>마그마·화성암</a>
-      <a href="#u4"><span class="n">4</span>편광현미경</a>
-      <a href="#u5"><span class="n">5</span>지구 내부구조</a>
-      <div class="grp">마무리</div>
-      <a href="#connect"><span class="n">★</span>단원 가로지르기</a>
-      <a href="#weak"><span class="n">!</span>약점 체크리스트</a>
-      <a href="#quiz"><span class="n">Q</span>퀴즈 13문항</a>
-    </nav>
-  </aside>
+  <header>
+    <div class="eyebrow">✦ 지구과학 및 실험 I</div>
+    <h1>통합 지구과학 학습</h1>
+    <p>고체지구에서 우주까지 — 두 종합 학습 자료를 하나로 묶었습니다. 원하는 영역을 골라 들어가세요.</p>
+    <div class="spectrum"></div>
+  </header>
 
-  <!-- ===== MAIN ===== -->
-  <main>
-    <div class="hero">
-      <div class="eyebrow">★ 내일 시험 대비 · 전 범위</div>
-      <h2>다섯 단원은 따로가 아니라<br>하나의 사슬입니다</h2>
-      <p>우주 먼지가 모여 <strong>지구가 되고(1)</strong> → 껍질이 판으로 쪼개져 <strong>움직이고(2)</strong> → 판이 부딪히는 곳에서 <strong>마그마가 생기고(3)</strong> → 마그마가 굳어 <strong>암석이 되고(4)</strong> → 그 무대인 <strong>내부를 지진파로 들여다봅니다(5)</strong>.</p>
-      <div class="keychips">
-        <span class="keychip">관통① 분화 = 녹아야 분리</span>
-        <span class="keychip">관통② 밀도가 모든 걸 결정</span>
-        <span class="keychip">관통③ 온도·압력</span>
+  <div class="cards">
+    <a class="card earth" href="고체지구-종합학습.html">
+      <div class="icon">🌍</div>
+      <div class="kicker">Unit 01 – 05 · 고체지구</div>
+      <h2>고체지구 종합 학습</h2>
+      <p>우주 먼지가 지구가 되고 → 판으로 쪼개져 움직이고 → 마그마가 굳어 암석이 되고 → 내부를 지진파로 들여다보는 하나의 사슬.</p>
+      <div class="chips">
+        <span class="chip">지구의 탄생</span>
+        <span class="chip">판구조론</span>
+        <span class="chip">마그마·화성암</span>
+        <span class="chip">편광현미경</span>
+        <span class="chip">내부구조</span>
       </div>
-    </div>
+      <span class="go">학습 시작 <span class="arr">→</span></span>
+    </a>
 
-    <!-- INTRO -->
-    <section id="intro">
-      <h4><span class="tag">왜?</span>먼저 이 세 가지를 머리에 깔아두세요</h4>
-      <div class="card">
-        <p><strong>① 분화(分化) = "녹아야 무거운 건 아래로, 가벼운 건 위로 분리된다."</strong> 1단원 핵·맨틀 분리, 3단원 마그마 분화, 5단원 층상 구조에 <em>똑같이</em> 반복됩니다. 이 단어를 보면 항상 "녹았다"를 떠올리세요.</p>
-        <p><strong>② 밀도.</strong> 행성의 안/밖(1), 섭입의 방향(2), 결정의 침강(3), 지구 층 구조(5)를 전부 밀도가 결정합니다.</p>
-        <p style="margin-bottom:0"><strong>③ 온도·압력.</strong> 마그마 생성 조건(3), 지진파 속도(5), 물질 상태(외핵 액체)를 결정합니다.</p>
+    <a class="card sky" href="천문-종합학습.html">
+      <div class="icon">✦</div>
+      <div class="kicker">Unit 06 – 09 · 천문</div>
+      <h2>천문 종합 학습</h2>
+      <p>별빛 하나에 담긴 물리량을 읽고 → H-R도로 별의 일생을 보고 → 가장 가까운 별 태양을 들여다보고 → 다른 별의 행성까지 찾습니다.</p>
+      <div class="chips">
+        <span class="chip">별의 물리량</span>
+        <span class="chip">H-R도·진화</span>
+        <span class="chip">태양</span>
+        <span class="chip">외계행성·생명체</span>
       </div>
-    </section>
+      <span class="go">학습 시작 <span class="arr">→</span></span>
+    </a>
+  </div>
 
-    <!-- ===== UNIT 1 ===== -->
-    <section id="u1">
-      <div class="unit-head"><div class="unit-num">1</div><h3>지구의 탄생과 지구시스템의 진화</h3></div>
-      <p class="unit-sub">성운 → 태양계 → 지구 → 4권역. "왜 그렇게 되는가"의 흐름으로.</p>
+  <div class="thru">
+    <h3><span class="tag">★</span>두 영역을 가로지르는 연결고리</h3>
+    <ul>
+      <li><b>흑점 = 자기장이 대류를 막아 온도↓</b> — 고체지구 1단원(태양 활동) = 천문 08(태양). 같은 메커니즘.</li>
+      <li><b>초신성이 무거운 원소를 흩뿌림</b> — 천문 07(대질량 별의 최후) = 고체지구 1단원(성운 수축의 계기).</li>
+      <li><b>자기장이 생명을 보호</b> — 천문 09(생명 가능 지대 추가 조건) = 고체지구 1단원(2단 방어).</li>
+      <li><b>플라즈마·태양풍</b> — 두 영역 모두에서 이온화 기체와 하전 입자 흐름으로 등장.</li>
+    </ul>
+  </div>
 
-      <h4>1.1 태양계 형성 — 성운설</h4>
-      <div class="chain"><b>사슬:</b> 초신성 충격파 → 수축·회전 → 납작한 원반 → 미행성체 → 원시행성 → 행성</div>
-      <p><strong>응축</strong>(기체→고체 알갱이) · <strong>집적</strong>(모여 쌓임) · <strong>분화</strong>(내부에서 밀도순 층 분리). 수축의 <strong>최초 계기 = 초신성 충격파</strong>(중력 아님 — 중력은 그 후 계속 수축시키는 힘).</p>
-
-      <h4>1.2 지구형 vs 목성형 <span class="tag">최빈출</span></h4>
-      <div class="trap"><b>⚠️ 함정:</b> 안쪽/바깥쪽 물질이 갈린 원인은 <b>온도</b>입니다. <b>밀도 차이는 원인이 아니라 결과!</b></div>
-      <table>
-        <tr><th>구분</th><th>크기</th><th>밀도</th><th>이유</th></tr>
-        <tr><td>지구형(수금지화)</td><td>작음</td><td>높음</td><td>뜨거워 암석·금속만 응축</td></tr>
-        <tr><td>목성형(목토)</td><td>큼</td><td>낮음</td><td>재료 많음 + 큰 중력으로 기체 포획</td></tr>
-        <tr><td>천왕성형(천해)</td><td>중간</td><td>—</td><td>물·메테인·암모니아 얼음</td></tr>
-      </table>
-      <div class="trap"><b>개별 행성:</b> 수성 = 3:2 공명(공전2=자전3) · <b>금성 = 자전(243일) &gt; 공전(225일), 뜨거운 이유는 오직 CO₂ 온실효과</b> · 천왕성 = 자전축 98° 누움</div>
-
-      <h4>1.3 태양계 외곽 구조</h4>
-      <table>
-        <tr><th>영역</th><th>거리(AU)</th><th>특징</th></tr>
-        <tr><td>카이퍼 벨트</td><td>30~50</td><td>도넛 원반, <strong>단주기 혜성</strong></td></tr>
-        <tr><td>산란 분포대</td><td>50~100+</td><td>해왕성에 차여 찌그러진 원반(에리스)</td></tr>
-        <tr><td>태양권계면</td><td>~120</td><td><strong>태양풍 vs 성간풍 균형점</strong></td></tr>
-        <tr><td>오르트 구름</td><td>2천~10만</td><td>구각, <strong>장주기 혜성</strong></td></tr>
-      </table>
-      <p>성간 매질 = 수소·헬륨 99%. 논리: <strong>멀다 → (케플러 3법칙) → 주기 길다 → 장주기 혜성</strong>.</p>
-
-      <h4>1.4 운석 — "녹았는가(분화)"가 분류의 기준</h4>
-      <div class="chain">운석
-├ <b>미분화</b>(안 녹음, 콘드룰 있음) = 콘드라이트
-│  ├ 오디너리(80%+, 철로 H/L/LL)
-│  ├ 엔스타타이트(<b>지구와 가장 닮음</b>, 동위원소 일치)
-│  └ 탄소질(차가운 외곽 → 물·유기물 → 생명 기원)
-└ <b>분화</b>(녹음, 콘드룰 사라짐)
-   ├ 에이콘드라이트(지각·맨틀)
-   ├ 석철질(핵-맨틀 경계, 최희귀 1%)
-   └ 철질(핵, 철-니켈)</div>
-      <div class="tip"><b>핵심:</b> 분화 = <b>모체가 녹음(용융)</b> → 무거운 철은 핵, 가벼운 규산염은 맨틀. 크기는 "녹을 조건"일 뿐.</div>
-      <div class="tip"><b>냉각 속도 대조:</b> 콘드룰 = <b>빠르게</b> 식음(작은 구슬) ↔ 비드만슈테텐 구조(철질) = <b>수백만~천만 년 느리게</b> 식음 → "큰 소행성 핵"의 증거. 3·4단원 화산암(빠름)/심성암(느림)으로 또 나옴.</div>
-
-      <h4>1.5.1 원시 지구 형성 순서 <span class="tag">최빈출</span></h4>
-      <div class="trap"><b>⚠️ 순서 함정:</b> 핵·맨틀 분리는 <b>마그마 바다 다음</b>! (녹기 전엔 분리 불가)</div>
-      <div class="chain">미행성체 충돌 → 원시 대기 → <b>마그마 바다</b> → 핵·맨틀 분리 → 원시 지각 → 원시 바다 → 생명체(40억 년)
-암기: "충돌 → 대기 → <b>녹음</b> → 분리 → 굳음 → 바다"</div>
-      <p>마그마 바다 4대 에너지: 충돌열·중력수축열(외부) + 방사성붕괴열·분화열(내부).</p>
-
-      <h4>1.5.2 기권의 진화 <span class="tag">최빈출</span></h4>
-      <p>대기 주성분: <strong>수소·헬륨(날아감) → 수증기·CO₂(탈가스) → 질소(현재)</strong>. 수증기는 바다로, CO₂는 석회암(지권)으로 빠지고 안정한 질소가 남음.</p>
-      <div class="chain"><b>산소 등장 ★함정★</b>
-남세균(35억 년) 광합성 → 산소가 먼저 <b>바닷속 철</b>과 반응
- → 산화철 쌓여 <b>호상철광층(BIF)</b>  ← 산소 혁명 "이전"!
- → 바다 철 다 소모 후 → 대기에 산소 축적(산소 혁명)
- → 오존층(6억 년) → 자외선 차단 → 육상 진출</div>
-
-      <h4>1.5.3 태양 활동 <span class="tag">플라즈마가 열쇠</span></h4>
-      <p><strong>플라즈마</strong> = 이온화 기체 + 전기 전도성 + <strong>자기장에 반응</strong>(← 모든 태양 현상의 원인). 자기장은 플라즈마 대류=전류 → (앙페르) → 자기장.</p>
-      <div class="trap"><b>흑점 ★함정★:</b> 어두운 이유 = 온도 낮음. <b>왜 낮은가 = 강한 자기장이 플라즈마 대류를 억제 → 열 공급 차단</b>. (열을 직접 막는 게 아니라 대류를 막음)</div>
-      <div class="trap"><b>태양풍 ★함정★:</b> <b>전자 + 양성자</b> (중성미자 아님! 빛도 아님 — 질량 가진 하전 입자 흐름)</div>
-      <p>플레어 = 자기장 폭발(델린저 현상) · 홍염 = 자기장 고리 따라 아치 · 활동주기 11년(흑점 수 + 자기장 극성 반전).</p>
-
-      <h4>1.5.4 지구 자기장·밴앨런대·오로라</h4>
-      <p><strong>다이너모 이론</strong>: 액체 외핵 대류 → 전류 → 자기장. 태양과 원리 같음, 매질만 다름(플라즈마 vs 액체 금속).</p>
-      <div class="trap"><b>2단 방어 ★함정★:</b> <b>자기장이 오존층을 지키고, 오존층이 자외선을 막는다.</b> 자기장이 자외선을 직접 막는 게 아님. (사례: 화성)</div>
-      <table>
-        <tr><th>밴앨런대</th><th>위치</th><th>주요 입자</th></tr>
-        <tr><td>내대</td><td>1천~1.2만 km</td><td class="hl">양성자</td></tr>
-        <tr><td>외대</td><td>1.3만~6만 km</td><td class="hl">전자</td></tr>
-      </table>
-      <table>
-        <tr><th>오로라 색</th><th>입자</th><th>고도</th></tr>
-        <tr><td>❤️ 빨강</td><td>산소</td><td>200~400km↑(최고)</td></tr>
-        <tr><td>💚 초록</td><td>산소</td><td>100~200km(최빈)</td></tr>
-        <tr><td>💜 보라·파랑</td><td>질소</td><td>80~120km(최저)</td></tr>
-      </table>
-      <div class="tip"><b>지자기극(이론) ≠ 자극(실제 측정, 복각 90°).</b> 원인 = 비쌍극자 자장. 쌍극자 축은 자전축과 11° 기울어짐. <b>편각</b>=좌우(진북vs자북), <b>복각</b>=위아래(위도 0°→90°).</div>
-
-      <h4>1.6 지구시스템 4권역 + 외권</h4>
-      <div class="trap"><b>상호작용 함정:</b> 두 권역으로 단정 금지. 예) "바다에 녹은 CO₂ → 조개 껍데기 → 석회암" = <b>수권↔생물권↔지권(3개!)</b></div>
-      <table>
-        <tr><th>에너지원</th><th>움직이는 곳</th><th>현상</th></tr>
-        <tr><td>태양(최대)</td><td>지표 위(기·수·생물)</td><td>바람·물순환·해류·광합성</td></tr>
-        <tr><td>지구 내부</td><td>땅속(지권)</td><td>맨틀대류·판이동·지진·화산</td></tr>
-        <tr><td>조력(최소)</td><td>바다(수권)</td><td>조석</td></tr>
-      </table>
-    </section>
-
-    <!-- ===== UNIT 2 ===== -->
-    <section id="u2">
-      <div class="unit-head"><div class="unit-num">2</div><h3>판구조론과 플룸구조론</h3></div>
-      <p class="unit-sub">과학사 + 메커니즘. "각 이론이 앞 이론의 무엇을 해결했나"로.</p>
-
-      <h4>2.1 이론 진화 사슬 <span class="tag">뼈대</span></h4>
-      <div class="chain">대륙이동설(베게너,1915) "증거는 있는데 원동력이 없다"
- → 맨틀대류설(홈스,1928) "원동력은 맨틀 대류다"
- → 해저확장설(헤스,1961) "그 증거를 찾았다"
- → 판구조론(모건,1967) "전부 종합"
- → 플룸구조론(1990s) "열점·맨틀대류까지 설명"</div>
-      <div class="trap"><b>⚠️ 순서 함정:</b> 맨틀대류설(1928)이 해저확장설(1961)보다 <b>먼저</b>. 원인을 먼저 제안, 증거는 나중.</div>
-
-      <h4>2.2 대륙이동설 (베게너)</h4>
-      <div class="trap"><b>외면당한 이유 ★핵심★:</b> <b>원동력(대륙 움직인 힘)을 설명 못 함.</b> 증거는 많았지만 "무슨 힘?"에 답 못 해서.</div>
-      <p><strong>증거 4갈래</strong>(공통 논리: 지금 떨어진 게 과거엔 연속): ① 해안선(수심 200m) ② 화석(메소사우루스·글로소프테리스·리스트로사우루스) ③ 빙하 흔적(적도에 빙하 자국) ④ 지질구조(애팔래치아↔칼레도니아).</p>
-
-      <h4>2.3 고지자기 — 부활 계기 <span class="tag">어려움</span></h4>
-      <div class="tip">암석이 굳을 때 자기장 방향이 <b>화석화된 나침반</b>처럼 기록 → 유럽·북미 자극 경로가 둘로 갈라짐 → <b>자극은 하나뿐이니 움직인 건 대륙</b> → 대륙 되돌리면 경로가 겹침 = 과거 한 덩어리 증거(겉보기 자극 이동 경로).</div>
-
-      <h4>2.4 해저확장설</h4>
-      <p><strong>"해령에서 멀어질수록"</strong>: 나이↑(최대 2억 년 ≪ 대륙 39억 년) · 퇴적물 두께↑ · 열류량↓ · <strong>자기 줄무늬 = 해령 축 좌우 대칭</strong>.</p>
-      <div class="tip"><b>자기 줄무늬 대칭:</b> 지자기 역전(1단원!)이 반복 기록 + 양쪽 동시·같은 속도 확장 → 거울상 대칭. 해저 확장의 결정적 증거.</div>
-
-      <h4>2.5 판구조론 — 성립 가정</h4>
-      <p>① 판 아래 무른 <strong>연약권</strong> 존재 ② 암석권은 단단한 <strong>강체 판</strong>. <strong>암석권(판) = 지각 + 맨틀 최상부(0~100km) ≠ 지각만!</strong> 대륙판(가벼움) vs 해양판(무거움) → 밀도 차가 섭입 방향 결정.</p>
-
-      <h4>2.6 판의 경계 <span class="tag">★★★시험 핵심★★★</span></h4>
-      <table>
-        <tr><th>경계</th><th>힘</th><th>지각</th><th>지형</th><th>단층</th><th>지진</th><th>마그마</th></tr>
-        <tr><td><strong>발산</strong></td><td>장력</td><td>생성</td><td>해령·열곡대</td><td>정단층</td><td class="hl">천발만</td><td>현무암질</td></tr>
-        <tr><td><strong>섭입</strong></td><td>횡압력</td><td>소멸</td><td>해구</td><td>역단층</td><td>천발~심발</td><td>안산암질</td></tr>
-        <tr><td><strong>충돌</strong></td><td>횡압력</td><td>—</td><td>습곡산맥</td><td>역단층</td><td>천발~중발</td><td class="hl">거의 없음</td></tr>
-        <tr><td><strong>보존</strong></td><td>어긋남</td><td>보존</td><td>변환단층</td><td>주향이동</td><td class="hl">천발만</td><td class="hl">없음</td></tr>
-      </table>
-      <div class="tip"><b>발산</b> 천발만 = 섭입(가라앉는 판) 없어 지진원 얕음. 마그마=현무암질(맨틀 직접), 해저선 베개용암. 사례 동아프리카 열곡대 → 미래 홍해처럼 바다.<br><br>
-      <b>섭입</b> = 베니오프대(해구→대륙쪽 지진 깊어짐). <b>물 → 녹는점 하강 → 부분 용융</b> → 안산암질(해양 현무암질+대륙 화강암질 혼합).<br><br>
-      <b>충돌</b>(히말라야) = 둘 다 가벼워 못 가라앉고 솟음, 화산 거의 없음.<br><br>
-      <b>보존</b>(산안드레아스) = 어긋나 스침, 화산X·천발만.</div>
-
-      <h4>2.7 판 이동 원동력 (3가설)</h4>
-      <p>① 해령에서 미는 힘 ② 섭입판이 당기는 힘 ③ 경사진 연약권 위를 미끄러지는 힘.</p>
-
-      <h4>2.8 플룸구조론 (1990s)</h4>
-      <p>지진파 토모그래피로 등장. 판구조론이 못 푼 맨틀 대류·열점 설명. <strong>차가운 플룸</strong>(슬래브 낙하) ↔ <strong>뜨거운 플룸</strong>(반작용 상승, 초대륙 분열). 열점=플룸이 만든 화산(하와이), 판 움직여도 고정.</p>
-    </section>
-
-    <!-- ===== UNIT 3 ===== -->
-    <section id="u3">
-      <div class="unit-head"><div class="unit-num">3</div><h3>마그마와 화성암</h3></div>
-      <p class="unit-sub">2단원 판 경계 + 1단원 분화가 여기서 합쳐집니다.</p>
-
-      <h4>3.1 마그마 종류 (생성 위치로 결정)</h4>
-      <table>
-        <tr><th>마그마</th><th>SiO₂</th><th>점성</th><th>온도</th><th>폭발성</th><th>생성 위치</th></tr>
-        <tr><td>현무암질</td><td>적음</td><td>작음</td><td>높음</td><td>적음</td><td>해령·열점·열곡대</td></tr>
-        <tr><td>안산암질</td><td>중간</td><td>중간</td><td>중간</td><td>중간</td><td><strong>섭입대</strong></td></tr>
-        <tr><td>유문암질</td><td>많음</td><td>큼</td><td>낮음</td><td>큼</td><td>대륙 하부</td></tr>
-      </table>
-      <div class="tip"><b>SiO₂ 많을수록 끈끈·폭발적·저온.</b> 2단원 직결: 발산=현무암질, 섭입=안산암질.</div>
-
-      <h4>3.2 마그마 생성 3방식 <span class="tag">중요</span></h4>
-      <p><strong>온도 상승</strong>(방사성 붕괴열·열점) · <strong>압력 하강</strong>(중앙해령 감압 용융) · <strong>물 공급</strong>(함수광물이 물 방출 → 녹는점 하강 → 섭입대).</p>
-      <div class="tip"><b>연결:</b> "물이 녹는점을 낮춘다"는 <b>2단원 섭입대 마그마 = 3단원 함수광물</b> 똑같은 메커니즘.</div>
-
-      <h4>3.3 마그마 분화 (1단원 "분화" 재등장)</h4>
-      <p><strong>분별결정작용</strong>: 식으면 용융점 높은 광물부터 정출 → 무거워 가라앉아 분리 → 현무암질→안산암질→유문암질(Fe·Mg·Ca↓, SiO₂·Na·K↑).</p>
-      <table>
-        <tr><th>불연속 계열(Fe·Mg)</th><th>연속 계열(사장석)</th></tr>
-        <tr><td>감람석→휘석→각섬석→흑운모</td><td>Ca사장석→Na사장석</td></tr>
-      </table>
-      <p>→ 저온에서 합쳐져 정장석→백운모→석영 (보웬의 반응 원리)</p>
-
-      <h4>3.4 화성암 분류 — "냉각 위치 → 조직"</h4>
-      <table>
-        <tr><th>조직</th><th>냉각</th><th>예</th></tr>
-        <tr><td>유리질</td><td>매우 빠름(지표)</td><td>흑요석</td></tr>
-        <tr><td>세립질</td><td>빠름</td><td>현무암</td></tr>
-        <tr><td>반상</td><td>반정+석기</td><td>안산암</td></tr>
-        <tr><td>조립질</td><td>느림(깊이)</td><td>화강암</td></tr>
-      </table>
-      <table>
-        <tr><th></th><th>염기성</th><th>중성</th><th>산성</th></tr>
-        <tr><td>화산암(빠름)</td><td>현무암</td><td>안산암</td><td>유문암</td></tr>
-        <tr><td>심성암(느림)</td><td>반려암</td><td>섬록암</td><td>화강암</td></tr>
-      </table>
-      <div class="tip"><b>냉각 속도가 조직 결정</b> = 1단원 콘드룰/비드만슈테텐과 같은 원리. 화산가스는 수증기 60~95%.</div>
-    </section>
-
-    <!-- ===== UNIT 4 ===== -->
-    <section id="u4">
-      <div class="unit-head"><div class="unit-num">4</div><h3>화성암의 조직과 편광현미경</h3></div>
-      <p class="unit-sub">광물의 광학적 성질 — 수행평가·실험 단골.</p>
-
-      <h4>4.1 지각 8대 원소 <span class="tag">암기</span></h4>
-      <div class="chain"><b>O &gt; Si &gt; Al &gt; Fe &gt; Ca &gt; Na &gt; K &gt; Mg</b>
-"오 시 알 페 카 나 크 마"  (O 46%, Si 28%)</div>
-      <div class="trap"><b>⚠️ 주의:</b> <b>지각</b>은 O 1위지만, <b>지구 전체</b>는 철(Fe) 1위, 산소 2위.</div>
-
-      <h4>4.2 광물의 정의</h4>
-      <p><strong>자연산 + 무기물 + 일정한 화학성분 + 규칙적 결정구조 + 고체.</strong> 광물 아님: 인공 다이아몬드, 물, 액체 수은, 석유. 무색광물(Fe·Mg 없음: 석영·장석) vs 유색광물(Fe·Mg 있음: 감람석·휘석·각섬석·흑운모).</p>
-
-      <h4>4.3 편광현미경 <span class="tag">핵심</span></h4>
-      <p>박편 두께 = <strong>0.03mm</strong>(고정 — 두께 따라 간섭색 변하므로).</p>
-      <table>
-        <tr><th>모드</th><th>관찰 가능</th></tr>
-        <tr><td>개방니콜</td><td>고유색, <strong>다색성</strong>, 투명성, 입자크기, <strong>벽개</strong></td></tr>
-        <tr><td>직교니콜</td><td><strong>간섭색</strong>, <strong>완전소광</strong>, 회전소광, <strong>쌍정</strong></td></tr>
-      </table>
-      <table>
-        <tr><th></th><th>광축</th><th>굴절</th><th>직교니콜 회전 시</th></tr>
-        <tr><td>등방체</td><td>없음</td><td>단굴절</td><td><strong>완전소광</strong>(계속 어두움)</td></tr>
-        <tr><td>이방체</td><td>있음</td><td>복굴절</td><td>간섭색 변화, <strong>360°에 4회 소광</strong></td></tr>
-      </table>
-      <p><strong>상광선</strong>(광축 수직, 스넬 따름, 회전해도 안 변함) vs <strong>이상광선</strong>(광축 평행, 스넬 안 따름, 회전 시 변함). <strong>간섭색</strong>=상·이상광선 속도차→위상차→간섭.</p>
-
-      <h4>4.4 조암광물 광학 성질 <span class="tag">암기표</span></h4>
-      <table>
-        <tr><th>광물</th><th>색</th><th>다색성</th><th>쪼개짐</th><th>쌍정</th></tr>
-        <tr><td>석영</td><td>무색</td><td>없음</td><td>없음(깨짐)</td><td>—</td></tr>
-        <tr><td>사장석</td><td>무색</td><td>거의없음</td><td>2방향 120°</td><td>알바이트(취편)</td></tr>
-        <tr><td>정장석</td><td>무색</td><td>거의없음</td><td>2방향 120°</td><td>칼스바트(접촉)</td></tr>
-        <tr><td>감람석</td><td>황록</td><td>없음</td><td>없음(깨짐)</td><td>—</td></tr>
-        <tr><td>휘석</td><td>옅은녹</td><td>약함</td><td class="hl">2방향 90°</td><td>—</td></tr>
-        <tr><td>각섬석</td><td>옅은녹</td><td>뚜렷</td><td class="hl">2방향 120°</td><td>—</td></tr>
-        <tr><td>흑운모</td><td>흑갈</td><td>암갈~황록</td><td>1방향</td><td>—</td></tr>
-      </table>
-      <div class="trap"><b>⚠️ 단골:</b> 휘석 <b>90°</b> vs 각섬석 <b>120°</b> 쪼개짐 각도. 다색성도 각섬석이 더 뚜렷.</div>
-      <p>파동소광(석영)=변성 증거 · 누대구조(사장석)=연속반응계열.</p>
-    </section>
-
-    <!-- ===== UNIT 5 ===== -->
-    <section id="u5">
-      <div class="unit-head"><div class="unit-num">5</div><h3>지구 내부 구조</h3></div>
-      <p class="unit-sub">지진파로 들여다본 지구 — 1단원 분화의 최종 결과물.</p>
-
-      <h4>5.1 지진파 <span class="tag">핵심</span></h4>
-      <table>
-        <tr><th></th><th>종류</th><th>통과 매질</th><th>속도</th><th>피해</th></tr>
-        <tr><td>P파</td><td>종파</td><td class="hl">고체·액체·기체 모두</td><td>빠름</td><td>작음</td></tr>
-        <tr><td>S파</td><td>횡파</td><td class="hl">고체만</td><td>중간</td><td>큼</td></tr>
-        <tr><td>표면파</td><td>—</td><td>지표면</td><td>가장 느림</td><td>가장 큼</td></tr>
-      </table>
-      <p>S파가 고체만 = 액체는 전단계수 μ=0 → Vs=0. P파는 액체서 느려지지만 0 아님(K≠0). 표면파: 러브파(수평)·레일리파(수직 타원).</p>
-
-      <h4>5.2 지진 깊이 분류 (2단원 직결)</h4>
-      <table>
-        <tr><th></th><th>깊이</th><th>어디서</th></tr>
-        <tr><td>천발</td><td>~70km</td><td>모든 판 경계, 최빈·피해 큼</td></tr>
-        <tr><td>중발</td><td>70~300km</td><td>충돌형·섭입형</td></tr>
-        <tr><td>심발</td><td>300~700km</td><td class="hl">섭입형 베니오프대만</td></tr>
-      </table>
-
-      <h4>5.3 지진 세기</h4>
-      <table>
-        <tr><th></th><th>규모</th><th>진도</th></tr>
-        <tr><td>의미</td><td>진원 에너지</td><td>받는 영향</td></tr>
-        <tr><td>위치</td><td>어디서나 동일</td><td>위치마다 다름</td></tr>
-      </table>
-      <p>핵실험/발파 = P파 강·S파 약(P/S 비로 판별). 유발지진(2017 포항) = 단층운동이라 S파 뚜렷.</p>
-
-      <h4>5.4 불연속면 <span class="tag">최빈출</span></h4>
-      <table>
-        <tr><th>불연속면</th><th>깊이</th><th>경계</th><th>근거</th></tr>
-        <tr><td>모호면</td><td>~35km</td><td>지각/맨틀</td><td>주시곡선 기울기 급변</td></tr>
-        <tr><td>구텐베르크면</td><td>2,900km</td><td>맨틀/외핵</td><td><strong>P파 암영대(103~142°), S파 도달X → 외핵 액체</strong></td></tr>
-        <tr><td>레만면</td><td>5,100km</td><td>외핵/내핵</td><td>암영대에 약한 P파 → 내핵</td></tr>
-      </table>
-      <div class="trap"><b>⚠️ 외핵 액체 증거 = S파 암영대</b>(S파가 외핵 통과 못 함). 1단원 다이너모(액체 외핵)와 직결!</div>
-
-      <h4>5.5 지구 내부 구조 — 분화의 최종 결과물</h4>
-      <div class="chain">지각 (규산염, 가벼움) — 대륙(화강암질,밀도2.7) / 해양(현무암질,밀도3.0)
-맨틀 (감람암질, 부피 82%) — 저속도층·전이대·하부맨틀
-외핵 (철·니켈·황, 2900~5100km, <b>액체</b>, S파 X)
-내핵 (철·니켈, 5100~6400km, <b>고체</b>, 압력으로 안 녹음)</div>
-      <div class="tip"><b>외핵 액체 / 내핵 고체</b> — 같은 철·니켈인데 깊을수록 압력이 녹는점을 올려 내핵은 못 녹음. 위로 갈수록 가볍고 아래로 무겁다 = <b>1단원 마그마 바다 분화의 결과</b>.</div>
-
-      <h4>5.6 토모그래피 (2단원 플룸과 연결)</h4>
-      <p>지진파 속도로 내부 온도 영상화. <strong>느린 곳=뜨거움</strong>(뜨거운 플룸), <strong>빠른 곳=차가움</strong>(차가운 플룸). 플룸 존재를 이걸로 확인.</p>
-    </section>
-
-    <!-- ===== CONNECTIONS ===== -->
-    <section id="connect">
-      <h4><span class="tag">★</span>단원을 가로지르는 핵심 연결 (이것만은!)</h4>
-      <ol class="conn">
-        <li><strong>분화 = 녹아서 밀도순 분리</strong> → 1단원(핵·맨틀) = 3단원(마그마 분화) = 5단원(층 구조). 세 번 반복.</li>
-        <li><strong>액체 외핵</strong> → 1단원(다이너모로 자기장) + 5단원(S파 암영대로 증명). 양방향.</li>
-        <li><strong>물이 녹는점을 낮춤</strong> → 2단원(섭입대) = 3단원(함수광물). 똑같은 메커니즘.</li>
-        <li><strong>냉각 속도가 조직 결정</strong> → 1단원(콘드룰/비드만슈테텐) = 3·4단원(화산암/심성암).</li>
-        <li><strong>지자기 역전</strong> → 1단원(자기장 반전) → 2단원(해저 자기 줄무늬 대칭).</li>
-        <li><strong>현무암질=발산, 안산암질=섭입</strong> → 2단원 판 경계 = 3단원 마그마.</li>
-        <li><strong>베니오프대·천발~심발</strong> → 2단원(섭입경계) = 5단원(지진 깊이).</li>
-        <li><strong>밀도</strong> → 행성(1)·섭입(2)·결정 침강(3)·지구 층(5) 전부 결정.</li>
-      </ol>
-    </section>
-
-    <!-- ===== WEAK ===== -->
-    <section id="weak">
-      <h4><span class="tag">!</span>약점 집중 체크리스트 — 외운 것만 체크</h4>
-      <div class="card check" id="checklist">
-        <label><input type="checkbox"><span>물질 분리 원인은 <strong>온도</strong>(밀도는 결과)</span></label>
-        <label><input type="checkbox"><span>금성: 자전(243) &gt; 공전(225), 뜨거운 이유 CO₂만</span></label>
-        <label><input type="checkbox"><span>운석·지구 분화 = 녹아야(용융) 분리</span></label>
-        <label><input type="checkbox"><span>원시 지구: 마그마 바다 → 그 다음 핵·맨틀 분리</span></label>
-        <label><input type="checkbox"><span>호상철광층(BIF) = 산소 혁명 이전</span></label>
-        <label><input type="checkbox"><span>흑점 어두움 = 자기장이 대류를 막아 열 차단</span></label>
-        <label><input type="checkbox"><span>태양풍 = 전자+양성자 (중성미자 아님)</span></label>
-        <label><input type="checkbox"><span>자기장 보호 = 2단 방어(자기장→오존층→자외선)</span></label>
-        <label><input type="checkbox"><span>밴앨런대: 내대 양성자, 외대 전자</span></label>
-        <label><input type="checkbox"><span>오로라: 산소=빨강·초록, 질소=파랑·보라</span></label>
-        <label><input type="checkbox"><span>이론 순서: 맨틀대류설(1928) → 해저확장설(1961)</span></label>
-        <label><input type="checkbox"><span>베게너 외면 이유 = 원동력 설명 못 함</span></label>
-        <label><input type="checkbox"><span>휘석 쪼개짐 90° vs 각섬석 120°</span></label>
-        <label><input type="checkbox"><span>외핵 액체 증거 = S파 암영대</span></label>
-      </div>
-    </section>
-
-    <!-- ===== QUIZ ===== -->
-    <section id="quiz">
-      <h4><span class="tag">Q</span>퀴즈 13문항 — 먼저 답하고 펼쳐서 확인</h4>
-      <div class="quiz">
-        <details><summary><span class="qn">Q1</span>지구형·목성형 행성의 크기·밀도 차이를 만든 근본 원인은? "밀도 차이"는 원인인가 결과인가?</summary>
-          <div class="ans"><b>온도.</b> 성운이 바깥으로 갈수록 차가워, 안쪽은 암석·금속만 응축(작고 무거움), 바깥쪽은 얼음·기체까지 응축(크고 가벼움). <span class="hl">밀도 차이는 원인이 아니라 결과.</span></div></details>
-
-        <details><summary><span class="qn">Q2</span>원시 지구 형성 순서를 쓰세요.</summary>
-          <div class="ans">미행성체 충돌 → 원시 대기 → <b>마그마 바다</b> → 핵·맨틀 분리 → 원시 지각 → 원시 바다. <span class="hl">핵·맨틀 분리는 마그마 바다 다음</span>(녹어야 분리).</div></details>
-
-        <details><summary><span class="qn">Q3</span>호상철광층(BIF)은 산소 혁명 이전인가 이후인가? 이유는?</summary>
-          <div class="ans"><b>이전.</b> 남세균이 만든 산소가 먼저 바닷속 철을 산화시켜 BIF를 쌓고, 바다 철이 다 소모된 뒤에야 대기에 산소가 축적(산소 혁명)되기 때문.</div></details>
-
-        <details><summary><span class="qn">Q4</span>흑점이 어두운(온도 낮은) 진짜 이유를 메커니즘으로.</summary>
-          <div class="ans">흑점은 자기장이 비정상적으로 강한 곳 → <b>강한 자기장이 플라즈마의 대류를 억제</b> → 아래에서 올라오는 열 공급이 차단 → 온도 하강 → 어둡게 보임. (열을 직접 막는 게 아니라 <span class="hl">대류를 막음</span>)</div></details>
-
-        <details><summary><span class="qn">Q5</span>베게너의 대륙이동설이 외면당한 결정적 이유는?</summary>
-          <div class="ans"><b>대륙을 움직인 원동력(힘)을 설명하지 못해서.</b> 증거는 많았지만 메커니즘이 없어 받아들여지지 않음. → 홈스의 맨틀대류설이 채움.</div></details>
-
-        <details><summary><span class="qn">Q6</span>시간 순서로: 해저확장설 / 판구조론 / 맨틀대류설 / 대륙이동설</summary>
-          <div class="ans">대륙이동설(1915) → <b>맨틀대류설(1928)</b> → 해저확장설(1961) → 판구조론(1967). <span class="hl">맨틀대류설이 해저확장설보다 먼저!</span></div></details>
-
-        <details><summary><span class="qn">Q7</span>판 경계별 단층/지진 깊이/화산을 쓰세요. (발산/섭입/충돌/보존)</summary>
-          <div class="ans"><b>발산</b>: 정단층·천발만·현무암질. <b>섭입</b>: 역단층·천발~심발·안산암질. <b>충돌</b>: 역단층·천발~중발·<span class="hl">화산 거의 없음</span>. <b>보존</b>: 주향이동·천발만·<span class="hl">화산 없음</span>.</div></details>
-
-        <details><summary><span class="qn">Q8</span>섭입대 마그마 생성 메커니즘은? 3단원의 무엇과 같은가?</summary>
-          <div class="ans">섭입 해양판의 <b>물(함수광물)이 맨틀의 녹는점을 낮춤 → 부분 용융 → 마그마</b>. 3단원 "물 공급에 의한 마그마 생성"과 <b>같은 메커니즘</b>.</div></details>
-
-        <details><summary><span class="qn">Q9</span>현무암질·안산암질·유문암질 중 (a)SiO₂ 최다 (b)점성 최대 (c)가장 폭발적인 것? (셋 다 같은 답)</summary>
-          <div class="ans"><b>유문암질.</b> SiO₂ 많을수록 점성 크고 폭발적이며 온도는 낮음.</div></details>
-
-        <details><summary><span class="qn">Q10</span>직교니콜에서 회전 시, 광학적 등방체와 이방체는 각각 어떻게 보이나?</summary>
-          <div class="ans"><b>등방체</b>: 계속 <b>완전소광</b>(어두움). <b>이방체</b>: 간섭색이 변하고 <b>360° 회전에 4회 소광</b>.</div></details>
-
-        <details><summary><span class="qn">Q11</span>휘석과 각섬석의 쪼개짐 각도는?</summary>
-          <div class="ans">휘석 <b>약 90°</b>, 각섬석 <b>약 120°</b>. (다색성은 각섬석이 더 뚜렷)</div></details>
-
-        <details><summary><span class="qn">Q12</span>외핵이 액체라는 증거는? 1단원의 무엇과 연결되나?</summary>
-          <div class="ans"><b>S파 암영대</b> — S파(고체만 통과)가 구텐베르크면 아래로 못 가서 도달하지 않음 → 외핵 액체. 1단원 <b>다이너모 이론</b>(액체 외핵 대류로 자기장 생성)과 연결.</div></details>
-
-        <details><summary><span class="qn">Q13</span>P파와 S파가 각각 통과하는 물질 상태는?</summary>
-          <div class="ans"><b>P파</b>: 고체·액체·기체 모두. <b>S파</b>: 고체만.</div></details>
-      </div>
-    </section>
-
-    <footer>고체지구 전 범위 · 다섯 단원을 하나의 사슬로 · 화이팅 🌍</footer>
-  </main>
+  <footer>지구과학 및 실험 I · 고체지구 + 천문 통합 · 화이팅 🌍✦</footer>
 </div>
 
 <script>
-  // progress via checklist
-  const boxes=[...document.querySelectorAll('#checklist input')];
-  const fill=document.getElementById('pfill'),lbl=document.getElementById('plabel');
-  function upd(){const n=boxes.filter(b=>b.checked).length;fill.style.width=(n/boxes.length*100)+'%';lbl.textContent='약점 점검 '+n+' / '+boxes.length;}
-  boxes.forEach(b=>b.addEventListener('change',upd));
-
-  // scrollspy
-  const links=[...document.querySelectorAll('#nav a')];
-  const secs=links.map(a=>document.querySelector(a.getAttribute('href')));
-  const obs=new IntersectionObserver(es=>{
-    es.forEach(e=>{if(e.isIntersecting){
-      const id='#'+e.target.id;links.forEach(l=>l.classList.toggle('active',l.getAttribute('href')===id));
-    }});
-  },{rootMargin:'-15% 0px -75% 0px'});
-  secs.forEach(s=>s&&obs.observe(s));
+  const sf=document.getElementById('stars');
+  for(let i=0;i<80;i++){const s=document.createElement('i');const sz=Math.random()*2+1;
+    s.style.width=s.style.height=sz+'px';s.style.left=Math.random()*100+'%';s.style.top=Math.random()*100+'%';
+    s.style.animationDelay=(Math.random()*4)+'s';sf.appendChild(s);}
 </script>
 </body>
 </html>
